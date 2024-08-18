@@ -19,7 +19,7 @@ def run():
     signal_handler = SignalHandler()
     client = connect_mqtt()
     client.loop_start()
-    ser = serial.Serial(arduino_port, 9600, timeout=1)
+    ser = serial.Serial(arduino_port, 9600, timeout=3)
     while signal_handler.can_run():
         line = ser.readline()
         publish(client, topic, line)
