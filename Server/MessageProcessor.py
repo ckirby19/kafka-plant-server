@@ -5,7 +5,7 @@ import time
 from SignalHandler import SignalHandler
 
 arduino_port = "/dev/ttyACM0"
-broker = '192.168.0.106'
+broker = '192.168.0.101'
 mqtt_port = 1883 #1883
 topic = "moistureData"
 client_id = f'python-mqtt-{random.randint(0,1000)}'
@@ -26,7 +26,7 @@ def run():
     client.loop_stop()
 
 def connect_mqtt():
-    def on_connect(client, userdata, flags, rc):
+    def on_connect(client, userdata, flags, rc, properties):
     # For paho-mqtt 2.0.0, you need to add the properties parameter.
     # def on_connect(client, userdata, flags, rc, properties):
         if rc == 0:
@@ -34,7 +34,9 @@ def connect_mqtt():
         else:
             print("Failed to connect, return code %d\n", rc)
     # Set Connecting Client ID
-    client = mqtt_client.Client(client_id)
+    # client = mqtt_client.Client(client_id)
+    client = mqtt_client.Client(client_id=client_id, callback_api_version=mqtt_client.CallbackAPIVersion.VERSION2)
+
     # client.tls_set(ca_certs="./certs/ca.crt", certfile="./certs/server.crt", keyfile="./certs/server.key")
 
     client.on_connect = on_connect
@@ -70,11 +72,11 @@ def on_disconnect(client, userdata, rc):
 
 def publish(client, topic, message):
     result = client.publish(topic, message)
-    status = result[0]
-    if status == 0:
-        print(f"Sent `{message}` to topic `{topic}`")
-    else:
-        print(f"Failed to send message to topic {topic}")
+    # status = result[0]
+    # if status == 0:
+    #     print(f"Sent `{message}` to topic `{topic}`")
+    # else:
+    #     print(f"Failed to send message to topic {topic}")
 
 
 if __name__ == "__main__":
