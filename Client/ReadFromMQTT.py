@@ -4,7 +4,7 @@ from SignalHandler import SignalHandler
 import asyncio
 import websockets
 
-broker = '192.168.0.106'
+broker = '192.168.0.101'
 mqtt_port = 1883 #1883
 topic = "moistureData"
 client_id = f'python-mqtt-{random.randint(0,1000)}'
@@ -20,35 +20,36 @@ ws = None
     
 async def main():
     signal_handler = SignalHandler()
-    await connect_websocket()
+    await serve_websocket()
     client = connect_mqtt()
     client.loop_start()
     while signal_handler.can_run():
         await asyncio.sleep(1)
     client.loop_stop()
     
+async def handler(websocket):
+    while True:
+        try:
+            message = await websocket.recv()
+        except websockets.ConnectionClosedOK:
+            break
+        print(message)
+        
 # Function to connect to WebSocket
-async def connect_websocket():
-    global ws
-    try:
-        ws = await websockets.connect(websocket_url)
-        print("Connected to WebSocket")
-    except Exception as e:
-        print(f"Failed to connect to WebSocket: {e}")
+async def serve_websocket():
+    async with websockets.serve(handler, "", 8001):
+        print("WebSocket server started on ws://0.0.0.0:8001")
+        await asyncio.get_running_loop().create_future()  # run forever
     
 def on_message(client, userdata, msg):
-    global ws
     message = msg.payload.decode()
     print(f"Received message from MQTT: {message}")
-    
-    # Send the message over WebSocket
-    if ws is not None:
-        asyncio.run(send_message(message))
+    asyncio.run(send_message(message))
         
 # Function to send message over WebSocket
 async def send_message(message):
     try:
-        await ws.send(message)
+        await websockets.send(message)
         print(f"Sent message over WebSocket: {message}")
     except Exception as e:
         print(f"Failed to send message over WebSocket: {e}")

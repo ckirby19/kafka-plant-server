@@ -15,7 +15,10 @@ const generateLineData = (lines: Data[]): PointOptionsObject[] =>
         })
     }).sort((one, two) => one.x - two.x)
 
-const seriesConfig = (data: Data[], i: number) => {return {type: "line", yAxis: `line${i}`, data: generateLineData(data)} };
+const seriesConfig = (data: Data[], i: number) => {return {
+    type: "line",
+    data: generateLineData(data)
+}};
 
 const generateSeries = (data: Record<string, Data[]>): SeriesOptionsType[] => 
     Object.entries(data).map(([k, data], i) => {
@@ -23,7 +26,6 @@ const generateSeries = (data: Record<string, Data[]>): SeriesOptionsType[] =>
         return {
             type: config.type,
             name: k,
-            yAxis: config.yAxis,
             color: "red",
             data: config.data
         } as SeriesOptionsType
@@ -50,6 +52,11 @@ const chartOptions = (series: SeriesOptionsType[]): Highcharts.Options => {
                     symbol: "circle",
                     radius: 5
                 }
+            }
+        },
+        yAxis: {
+            title: {
+                text: "Moisture (%)"
             }
         },
         series: series
